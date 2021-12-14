@@ -1,0 +1,9 @@
+{
+    "presets": [
+      ["@babel/preset-env", {
+        "targets": {
+          "browsers": [ "edge>=16", "chrome >= 62" ]
+        }      
+      }]
+    ]
+  }

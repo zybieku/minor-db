@@ -1,0 +1,29 @@
+{
+  "workbench.iconTheme": "vscode-icons",
+  "editor.fontSize": 16,
+  "editor.formatOnSave": true,
+  // 添加 vue 支持
+  "eslint.validate": ["javascript", "javascriptreact", "vue"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+
+  "debug.console.fontSize": 15,
+  "markdown.preview.fontSize": 15,
+  "editor.codeLensFontSize": 15,
+  "terminal.integrated.fontSize": 15,
+
+  "emmet.triggerExpansionOnTab": true,
+  "emmet.includeLanguages": {
+    "javascript": "html",
+    "vue": "html",
+    "vue-html": "html",
+    "plaintext": "jade",
+    "ejs": "html"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": false,
+    "editor.formatOnSave": false
+  },
+}
