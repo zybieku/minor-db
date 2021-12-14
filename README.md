@@ -37,9 +37,9 @@ const dbConfig = {
 关于**schemas**
 
 - key   : `user,friends，message`  分别对应一个 **table(`Store`)** 名字
-- value :  第一个字段是主键，其他的是索引（~~非主键，和索引字段不用配置~~）
+- value :  第一个字段是主键（值唯一），其他的是索引（~~非主键，非索引字段不用配置~~）
 
-  - `++` ++代表自增主键
+  - `++` ++代表是自增的主键(非必须，比如 `friends.name`非自增)
   - `&` 代表唯一索引，unique唯一不可重复
 
 ---
@@ -80,7 +80,7 @@ minorDb.open(dbConfig.schemas).then((event) => {}).catch(err => {});
 
 2. **Find**
 
-   可以直接使用 `findone` 或 `find` 方法获取一条或多条记录。
+   可以直接使用 `get` 或 `find` 方法获取一条或多条记录。
 
 ```js
    //默认查询所有
@@ -110,5 +110,10 @@ minorDb.open(dbConfig.schemas).then((event) => {}).catch(err => {});
    可以直接使用 remove 方法删除数据库记录。
 
 ```js
-   let result = minorDb.user.remove({ id:  1  })
+   //根据主键的值删除一条
+   let result = minorDb.user.remove(1)
+   //根据主键的值删除多条
+   let result = minorDb.user.remove([1,2,3,4])
+   //复杂的删除
+   let result = minorDb.user.where({id:{'>':1}}).remove()
 ```
