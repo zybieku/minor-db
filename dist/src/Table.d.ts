@@ -1,8 +1,9 @@
 import { DBWhereCause } from "types/MniorDbType";
 import type MinorDBInstance from "./MinorDB";
 import WhereCause from "./WhereCause";
-declare type WhereCauseIntance = InstanceType<typeof WhereCause>;
 export declare type MinorTableInstance = InstanceType<typeof Table>;
+declare type WhereCauseIntance = InstanceType<typeof WhereCause>;
+export declare type UpdateData = Array<Record<string, any>> | Record<string, any>;
 /**
  * Table类
  * 负责表的增加，删除，修改
@@ -10,7 +11,7 @@ export declare type MinorTableInstance = InstanceType<typeof Table>;
 export default class Table {
     private minorDb;
     private _name;
-    private _pkey;
+    _pkey: string;
     where: (arg: DBWhereCause) => WhereCauseIntance;
     limit: (arg: number) => WhereCauseIntance;
     sort: (arg: 'ASC' | 'DESC') => WhereCauseIntance;
@@ -39,13 +40,13 @@ export default class Table {
      * @param {string} storeName:表名称
      * @param {object|array} content:需要写入的内容
      */
-    insertOne(row: any): Promise<unknown>;
+    insertOne(row: any, store?: IDBObjectStore): Promise<unknown>;
     /**
      * 更新数据
      * @param {string} storeName:表名称
      * @param {object/array} content:需要写入的内容
      */
-    update(doc: any): Promise<unknown>;
+    update(doc: UpdateData): Promise<unknown>;
     /**
      * 查询数据
      * @param {Object} whereCause  需要查询的条件

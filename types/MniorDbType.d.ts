@@ -9,4 +9,5 @@ export interface DBWhereCause {
     count?: Number;
     keyRange?: IDBValidKey | IDBKeyRange;
     orderBy?: IDBCursorDirection;
+    field?: string;
 }

@@ -1,6 +1,9 @@
 import { DBWhereCause } from "types/MniorDbType";
-import { MinorTableInstance } from "./Table";
-import { isObject, IDBKeyRange, logError } from "./util";
+import Table from "./Table";
+import { isObject, IDBKeyRange, logError, getIDBError } from "./util";
+
+type MinorTableInstance = InstanceType<typeof Table>
+type UpdateData = Array<Record<string, any>> | Record<string, any>
 
 //{ id: { '<=': 2,'>=':1} }
 const RangFuncMap = {
@@ -29,7 +32,9 @@ export default class WhereCause {
         if (!isObject(expr)) return this;
         const fields = Object.keys(expr);
         if (fields.length === 1) {
-            const whereCause = expr[fields[0]];
+            let field = fields[0]
+            this.whereCause.field = field
+            const whereCause = expr[field];
             const wherekeys = Object.keys(whereCause);
             if (wherekeys.length === 1) {
                 let key = wherekeys[0]
@@ -60,5 +65,41 @@ export default class WhereCause {
         return this;
     }
 
+    /**
+     * 更新数据
+     * @param {object/array} content:需要写入的内容
+     */
+    update(updateDate: UpdateData) {
+        const { field, count, keyRange, orderBy } = this.whereCause;
+        return new Promise((resolve, reject) => {
+            const store = this._table.getStore("readwrite");
+            let uRequest
+            let _pkey = store.keyPath as string
+            if (!field || _pkey === field) {
+                //主键查询
+                uRequest = store.openCursor(keyRange, orderBy);
+            } else {
+                //索引
+                uRequest = store.index(field!).openCursor(keyRange, orderBy);
+            }
+            const list = [] as any[];
+            uRequest.onsuccess = (event: any) => {
+                const cursor = event.target.result as IDBCursorWithValue;
+                if (cursor) {
+                    updateDate[_pkey] = cursor.primaryKey
+                    cursor.update(updateDate)
+                    list.push(cursor.primaryKey);
+                    if (count && list.length >= count) {
+                        resolve(list);
+                        return;
+                    }
+                    cursor.continue();
+                } else {
+                    resolve(list);
+                }
+            };
+            uRequest.onerror = (event) => reject(getIDBError(event));
+        });
+    }
 
 }

@@ -2,9 +2,12 @@ import { DBWhereCause } from "types/MniorDbType";
 import type MinorDBInstance from "./MinorDB";
 import { isObject, getIDBError, logError, IDBKeyRange } from "./util";
 import WhereCause from "./WhereCause";
-type WhereCauseIntance = InstanceType<typeof WhereCause>
 
 export type MinorTableInstance = InstanceType<typeof Table>;
+
+type WhereCauseIntance = InstanceType<typeof WhereCause>
+
+export type UpdateData = Array<Record<string, any>> | Record<string, any>
 
 /**
  * Table类
@@ -13,7 +16,7 @@ export type MinorTableInstance = InstanceType<typeof Table>;
 export default class Table {
     private minorDb: MinorDBInstance
     private _name: string
-    private _pkey: string = ''
+    public _pkey: string = ''
     public where: (arg: DBWhereCause) => WhereCauseIntance
     public limit: (arg: number) => WhereCauseIntance
     public sort: (arg: 'ASC' | 'DESC') => WhereCauseIntance
@@ -83,13 +86,14 @@ export default class Table {
      */
     insert(rows) {
         if (!isObject(rows)) logError('content must be is an object or array ');
+        const store = this.getStore("readwrite");
         //如果是数组
         if (Array.isArray(rows)) {
             return Promise.all(rows.map((row) => {
-                return this.insertOne(row);
+                return this.insertOne(row, store);
             }));
         } else {
-            return this.insertOne(rows);
+            return this.insertOne(rows, store);
         }
     }
 
@@ -98,10 +102,12 @@ export default class Table {
      * @param {string} storeName:表名称
      * @param {object|array} content:需要写入的内容
      */
-    insertOne(row) {
+    insertOne(row, store?: IDBObjectStore) {
         if (!isObject(row) || Array.isArray(row)) logError('content must be is an object');
         return new Promise((resolve, reject) => {
-            const store = this.getStore("readwrite");
+            if (!store) {
+                store = this.getStore("readwrite");
+            }
             const iRequest = store.add(row);
             iRequest.onsuccess = () => {
                 resolve(iRequest.result);
@@ -115,7 +121,7 @@ export default class Table {
      * @param {string} storeName:表名称
      * @param {object/array} content:需要写入的内容
      */
-    update(doc) {
+    update(doc: UpdateData) {
         if (!isObject(doc) || Array.isArray(doc)) logError('content must be is an object');
         return new Promise((resolve, reject) => {
             const store = this.getStore("readwrite");
@@ -132,14 +138,24 @@ export default class Table {
      * @param {Object} fields 需要查询的字段信息
      */
     find(whereCause = {} as DBWhereCause) {
-        const { count, keyRange, orderBy } = whereCause;
+        const { field, count, keyRange, orderBy } = whereCause;
         return new Promise((resolve, reject) => {
             const store = this.getStore("readonly");
             const list = [] as any[];
-            const qRequest = store.openCursor(keyRange, orderBy);
+            let qRequest
+            if (!field || store.keyPath === field) {
+                //主键查询
+                qRequest = store.openCursor(keyRange, orderBy);
+            } else {
+                //索引
+                qRequest = store.index(field!).openCursor(keyRange, orderBy);
+            }
             qRequest.onsuccess = (event: any) => {
                 const cursor = event.target.result as IDBCursorWithValue;
                 if (cursor) {
+                    if (field) {
+                        console.log(cursor.value);
+                    }
                     list.push(cursor.value);
                     if (count && list.length >= count) {
                         resolve(list);
@@ -162,21 +178,27 @@ export default class Table {
      */
     remove(whereCause = {} as DBWhereCause) {
         if (!isObject(whereCause) || Array.isArray(whereCause)) logError('whereCause must be an object ');
-        const { count, keyRange, orderBy } = whereCause;
+        const { field, count, keyRange, orderBy } = whereCause;
         return new Promise((resolve, reject) => {
             const store = this.getStore("readwrite");
-            console.log(store);
-            const dRequest = store.openCursor(keyRange, orderBy);
+            let dRequest
+            if (!field || store.keyPath === field) {
+                //主键查询
+                dRequest = store.openCursor(keyRange, orderBy);
+            } else {
+                //索引
+                dRequest = store.index(field!).openCursor(keyRange, orderBy);
+            }
             const list = [] as Array<any>;
             dRequest.onsuccess = (event: any) => {
                 const cursor = event.target.result as IDBCursorWithValue;
                 if (cursor) {
+                    list.push(cursor.value);
+                    cursor.delete();
                     if (count && list.length >= count) {
                         resolve(list);
                         return;
                     }
-                    cursor.delete();
-                    list.push(cursor.value);
                     cursor.continue();
                 } else {
                     resolve(list);
