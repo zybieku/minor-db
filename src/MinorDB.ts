@@ -1,29 +1,46 @@
-import Table from './Table';
+import { DBSchemas } from "types/MniorDbType";
+import Table, { MinorTableInstance } from "./Table";
 
-import { indexedDB, getIDBError, isObject } from './util';
+import { indexedDB, getIDBError, isObject } from "./util";
+
+export type MinorDBInstance = InstanceType<typeof MinorDB>
+export type tableNameKey = keyof DBSchemas
 
 /**
  * MinorDB是基于IndexDB封装的一个浏览器数据库
  */
 export default class MinorDB {
+    private _name: string;
+    private _version: number;
+    private _isOpen: boolean = false;
+    private request?: IDBOpenDBRequest;
+    public _idb?: IDBDatabase;
+    private upgradeFunc;
+    [key: tableNameKey]: MinorTableInstance | any
 
-    constructor(name, version) {
+    constructor(name: string, version: number) {
         this._name = name;
         this._version = version || 1;
+        return this
     }
+
+
 
     /**
      * 数据的名字.
      * @type {string}
      */
-    get name() { return this._name; }
+    get name() {
+        return this._name;
+    }
 
     /**
      * 数据库的版本
      * @type {number}
      */
-    get version() { return this._version; }
-
+    get version() {
+        return this._version;
+    }
 
     /**
      * 监听的onupgradeneeded的触发函数
@@ -33,27 +50,25 @@ export default class MinorDB {
         this.upgradeFunc = cb;
     }
 
-
     /**
      * 创建并打开数据库，如果已经创建过了，即直接打开
-     * @param {Object}  
+     * @param {Object}
      * @returns Promise
      */
-    open(schemas) {
+    open(schemas: DBSchemas) {
         this.close();
         this._stores(schemas);
         return new Promise((resolve, reject) => {
-
             this.request = indexedDB.open(this._name, this._version);
 
-            this.request.onupgradeneeded = (event) => {
-                this._idb = event.target.result;
+            this.request.onupgradeneeded = (event: any) => {
+                this._idb = event.target.result as IDBDatabase;
                 this._addStores(schemas);
                 this.upgradeFunc && this.upgradeFunc(event);
             };
 
-            this.request.onsuccess = (event) => {
-                this._idb = event.target.result;
+            this.request.onsuccess = (event: any) => {
+                this._idb = event.target.result as IDBDatabase;
                 this._isOpen = true;
                 resolve(event);
             };
@@ -61,9 +76,9 @@ export default class MinorDB {
         });
     }
 
-    _addStores(schemas) {
+    _addStores(schemas: DBSchemas) {
         for (const tbName of Object.keys(schemas)) {
-            if (!this._idb.objectStoreNames.contains(tbName)) {
+            if (!this._idb!.objectStoreNames.contains(tbName)) {
                 this[tbName].create(schemas[tbName]);
             }
         }
@@ -74,15 +89,16 @@ export default class MinorDB {
      * @param {Object} schemas table的配置文件
      * @returns MinorDB
      */
-    _stores(schemas) {
-        if (!isObject(schemas)) { throw new Error('schemas required an  Object'); }
+    _stores(schemas: DBSchemas) {
+        if (!isObject(schemas)) {
+            throw new Error("schemas required an  Object");
+        }
         for (const tbName of Object.keys(schemas)) {
             if (this[tbName]) break;
-            this[tbName] = new Table(this, tbName, schemas[tbName]);
+            this[tbName] = new Table(this, tbName);
         }
         return this;
     }
-
 
     /**
      * 获取所有的table名字
@@ -97,9 +113,9 @@ export default class MinorDB {
      */
     close() {
         if (this._isOpen) {
-            this._idb.close();
+            this._idb?.close();
             this._isOpen = false;
-            this._idb = null;
+            this._idb = undefined;
         }
     }
 
@@ -110,9 +126,8 @@ export default class MinorDB {
         this.close();
         return new Promise((resolve, reject) => {
             const req = indexedDB.deleteDatabase(this._name);
-            req.onsuccess = () => resolve();
-            req.onerror = e => reject(e);
+            req.onsuccess = (e) => resolve(e);
+            req.onerror = (e) => reject(e);
         });
     }
-
 }

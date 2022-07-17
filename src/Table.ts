@@ -1,26 +1,39 @@
+import { DBWhereCause } from "types/MniorDbType";
+import type MinorDBInstance from "./MinorDB";
 import { isObject, getIDBError, logError, IDBKeyRange } from "./util";
 import WhereCause from "./WhereCause";
+type WhereCauseIntance = InstanceType<typeof WhereCause>
+
+export type MinorTableInstance = InstanceType<typeof Table>;
 
 /**
  * Table类
  * 负责表的增加，删除，修改
  */
 export default class Table {
+    private minorDb: MinorDBInstance
+    private _name: string
+    private _pkey: string = ''
+    public where: (arg: DBWhereCause) => WhereCauseIntance
+    public limit: (arg: number) => WhereCauseIntance
+    public sort: (arg: 'ASC' | 'DESC') => WhereCauseIntance
 
-    constructor(minorDb, name) {
+    constructor(minorDb: MinorDBInstance, name: string) {
         this.minorDb = minorDb;
         this._name = name;
-        this._bind();
+        this.where = (arg) => new WhereCause(this).where(arg)
+        this.limit = (arg) => new WhereCause(this).limit(arg)
+        this.sort = (arg) => new WhereCause(this).sort(arg)
     }
 
     get idb() {
-        return this.minorDb._idb;
+        return this.minorDb._idb!;
     }
 
     /**
-  * 根据schema配置信息创建table
-  * @param {String} schema 数据库字段
-  */
+    * 根据schema配置信息创建table
+    * @param {String} schema 数据库字段
+    */
     create(schema) {
         const fields = schema.split(',');
         /**
@@ -56,11 +69,11 @@ export default class Table {
         return this.idb.transaction([this._name], rwType).objectStore(this._name);
     }
 
-    _bind() {
-        ['where', 'limit', 'sort'].forEach(func => {
-            this[func] = (...arg) => new WhereCause(this)[func](...arg);
-        });
-    }
+    // _bind() {
+    //     ['where', 'limit', 'sort'].forEach(func => {
+    //         this[func] = (...arg) => new WhereCause(this)[func](...arg);
+    //     });
+    // }
 
 
     /**
@@ -106,7 +119,7 @@ export default class Table {
         if (!isObject(doc) || Array.isArray(doc)) logError('content must be is an object');
         return new Promise((resolve, reject) => {
             const store = this.getStore("readwrite");
-            if (!doc[store.keyPath]) reject('content must have a primary key');
+            if (!doc[store.keyPath as string]) reject('content must have a primary key');
             const uRequest = store.put(doc);
             uRequest.onsuccess = () => resolve(uRequest.result);
             uRequest.onerror = (event) => reject(getIDBError(event));
@@ -118,14 +131,14 @@ export default class Table {
      * @param {Object} whereCause  需要查询的条件
      * @param {Object} fields 需要查询的字段信息
      */
-    find(fields, whereCause = {}) {
+    find(whereCause = {} as DBWhereCause) {
         const { count, keyRange, orderBy } = whereCause;
         return new Promise((resolve, reject) => {
             const store = this.getStore("readonly");
-            const list = [];
+            const list = [] as any[];
             const qRequest = store.openCursor(keyRange, orderBy);
-            qRequest.onsuccess = (event) => {
-                const cursor = event.target.result;
+            qRequest.onsuccess = (event: any) => {
+                const cursor = event.target.result as IDBCursorWithValue;
                 if (cursor) {
                     list.push(cursor.value);
                     if (count && list.length >= count) {
@@ -147,16 +160,16 @@ export default class Table {
      * @param {string} storeName:表名称
      * @param {object/array} content:需要写入的内容
      */
-    remove(whereCause = {}) {
+    remove(whereCause = {} as DBWhereCause) {
         if (!isObject(whereCause) || Array.isArray(whereCause)) logError('whereCause must be an object ');
         const { count, keyRange, orderBy } = whereCause;
         return new Promise((resolve, reject) => {
             const store = this.getStore("readwrite");
             console.log(store);
             const dRequest = store.openCursor(keyRange, orderBy);
-            const list = [];
-            dRequest.onsuccess = (event) => {
-                const cursor = event.target.result;
+            const list = [] as Array<any>;
+            dRequest.onsuccess = (event: any) => {
+                const cursor = event.target.result as IDBCursorWithValue;
                 if (cursor) {
                     if (count && list.length >= count) {
                         resolve(list);

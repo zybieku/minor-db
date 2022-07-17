@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "DOM"],
+    "composite": true,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "declarationDir": "dist",
+    "outDir": "dist",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src", "types", "types/*"],
+  "typeRoots": ["./node_modules/@types/", "./types/"]
+}

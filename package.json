@@ -1,8 +1,12 @@
 {
   "name": "minordb",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "this is web-client database based on indexdb",
   "main": "./dist/minordb.min.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": "./dist/minordb.min.js"
+  },
   "scripts": {
     "test": "node ",
     "dev": "webpack  --node-env=development  --progress --watch ",
@@ -14,7 +18,6 @@
   "bugs": {
     "url": "https://github.com/zybieku/minor-db/issues"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
@@ -24,6 +27,8 @@
     "eslint": "^8.3.0",
     "eslint-webpack-plugin": "^3.1.1",
     "mocha": "^9.1.3",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
     "webpack": "^5.58.2",
     "webpack-cli": "^4.9.0"
   }
