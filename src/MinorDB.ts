@@ -24,8 +24,6 @@ export default class MinorDB {
         return this
     }
 
-
-
     /**
      * 数据的名字.
      * @type {string}

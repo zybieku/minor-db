@@ -153,9 +153,6 @@ export default class Table {
             qRequest.onsuccess = (event: any) => {
                 const cursor = event.target.result as IDBCursorWithValue;
                 if (cursor) {
-                    if (field) {
-                        console.log(cursor.value);
-                    }
                     list.push(cursor.value);
                     if (count && list.length >= count) {
                         resolve(list);
