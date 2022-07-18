@@ -41,6 +41,13 @@ export default class MinorDB {
     }
 
     /**
+     * 是否打开
+     */
+    get isOpen() {
+        return this._isOpen;
+    }
+
+    /**
      * 监听的onupgradeneeded的触发函数
      * @param {Function} cb  onupgradeneeded 回调
      */

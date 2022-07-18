@@ -69,7 +69,10 @@ export default class Table {
      * @returns objectStore
      */
     getStore(rwType) {
-        return this.idb.transaction([this._name], rwType).objectStore(this._name);
+        if (!this.minorDb.isOpen) {
+            logError('the indexdb is not open')
+        }
+        return this.idb?.transaction([this._name], rwType).objectStore(this._name);
     }
 
     // _bind() {
