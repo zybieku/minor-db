@@ -106,7 +106,7 @@ describe('修改 # update', function () {
 });
 
 
-describe.skip('删除 # remove', function () {
+describe('删除 # remove', function () {
     before(function () {
         if (minorDb) {
             minorDb.close();
@@ -115,7 +115,7 @@ describe.skip('删除 # remove', function () {
         return minorDb.open(dbConfig.schemas);
     });
     it('table.remove(Object).then().catch()', function () {
-        return minorDb.user.where({ id: { '>=': 1 } }).limit(4).remove().then(res => {
+        return minorDb.user.where({ id: { '>=': 1 } }).remove().then(res => {
             console.log('删除', res);
             expect(res).to.be.a('array');
         }).catch(err => {

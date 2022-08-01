@@ -1,10 +1,9 @@
 import { DBSchemas } from "types/MniorDbType";
-import Table, { MinorTableInstance } from "./Table";
+import Table from "./Table";
 
 import { indexedDB, getIDBError, isObject } from "./util";
 
 export type MinorDBInstance = InstanceType<typeof MinorDB>
-export type tableNameKey = keyof DBSchemas
 
 /**
  * MinorDB是基于IndexDB封装的一个浏览器数据库
@@ -16,7 +15,6 @@ export default class MinorDB {
     private request?: IDBOpenDBRequest;
     public _idb?: IDBDatabase;
     private upgradeFunc;
-    [key: tableNameKey]: MinorTableInstance | any
 
     constructor(name: string, version: number) {
         this._name = name;
