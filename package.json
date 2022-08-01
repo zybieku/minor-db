@@ -1,6 +1,6 @@
 {
   "name": "minordb",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "this is web-client database based on indexdb",
   "main": "./dist/minordb.min.js",
   "types": "./dist/src/index.d.ts",

@@ -85,11 +85,14 @@ minorDb.open(dbConfig.schemas).then((event) => {}).catch(err => {});
 ```js
    //默认查询所有
    let users= await minorDb.user.find()
+    
 
    //查询id>1的2条数据，升序排序
    //where 条件只能是主键或索引
    let lUsers =minorDb.user.where({ id: { '>': 1 }).limit(2).sort(asc).find()
-  
+
+   //查询username=2的数据
+   let lUsers =minorDb.user.where({ username: { '=': '3' }).find()
 ```
 
 3. **update**
@@ -102,7 +105,7 @@ minorDb.open(dbConfig.schemas).then((event) => {}).catch(err => {});
     let result = minorDb.user.update(user)
 
     //如果不包含主键，需要手动设置索引where
-    let result = minorDb.user.where({password: "1"}).update(user)
+    let result = minorDb.user.where({password:{ =:"1"} }).update(user)
 ```
 
 4. **remove**
@@ -110,10 +113,8 @@ minorDb.open(dbConfig.schemas).then((event) => {}).catch(err => {});
    可以直接使用 remove 方法删除数据库记录。
 
 ```js
-   //根据主键的值删除一条
-   let result = minorDb.user.remove(1)
    //根据主键的值删除多条
-   let result = minorDb.user.remove([1,2,3,4])
+   let result = minorDb.user.remove({id:{'>':1}})
    //复杂的删除
    let result = minorDb.user.where({id:{'>':1}}).remove()
 ```
