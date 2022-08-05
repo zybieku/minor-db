@@ -8,6 +8,10 @@ export const logError = (e) => {
   throw new Error(e);
 };
 
+export const logTypeError = (e) => {
+  throw new TypeError(e);
+};
+
 //@ts-ignore
 export const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 

@@ -2,9 +2,9 @@
 if (!expect) expect = chai.expect;
 
 const users = [
-    { username: "2", password: '123', age: '1' },
-    { username: "3", password: '123', age: '1' },
-    { username: "4", password: '123', age: '1' }
+    { username: "2", password: '123', age: 18 },
+    { username: "3", password: '123', age: 19 },
+    { username: "4", password: '123', age: 20 }
 ];
 
 describe('插入 # insert ', function () {
@@ -17,7 +17,7 @@ describe('插入 # insert ', function () {
         return minorDb.init(dbConfig.schemas);
     });
     it('table.insert(Object).then().catch()', function () {
-        return minorDb.user.insert({ username: "1", password: '123', age: '1' }).then(res => {
+        return minorDb.user.insert({ username: "1", password: '123', age: 17 }).then(res => {
             expect(res).to.be.a('number');
         }).catch(err => {
             expect(err).to.not.ok;
@@ -73,7 +73,7 @@ describe('查询 # find', function () {
 });
 
 describe('修改 # update', function () {
-    const user = {id: 1,  username: "12", password: '1234', age: '1' };
+    const user = {id: 1,  username: "12", password: '1234', age: 16 };
     before(function (done) {
         if (minorDb) {
             done();
@@ -93,7 +93,7 @@ describe('修改 # update', function () {
     });
 
     it('table.where(Object).update(Object).then().catch()', function () {
-        const user1 = { username: "2", password: '12346', age: '1' };
+        const user1 = { username: "2", password: '12346', age:21 };
         return minorDb.user.where({ username: { '=': '2' }}).update(user1).then(res => {
             console.log('条件更新',res);
             expect(res).to.be.a('array');
@@ -114,8 +114,8 @@ describe('删除 # remove', function () {
         minorDb = new MinorDB(dbConfig.name, dbConfig.version);
         return minorDb.open(dbConfig.schemas);
     });
-    it('table.remove(Object).then().catch()', function () {
-        return minorDb.user.where({ id: { '>=': 1 } }).remove().then(res => {
+    it('table.where(Object).limit(4).remove().then().catch()', function () {
+        return minorDb.user.where({ age: { '<=': 20,'>':17 } }).limit(4).remove().then(res => {
             console.log('删除', res);
             expect(res).to.be.a('array');
         }).catch(err => {
@@ -123,8 +123,8 @@ describe('删除 # remove', function () {
         });
 
     });
-    it('table.where(Object).limit(4).remove().then().catch()', function () {
-        return minorDb.user.where({ id: { '>=': 2 } }).limit(4).remove().then(res => {
+    it('table.remove().then().catch()', function () {
+        return minorDb.user.remove().then(res => {
             console.log('删除', res);
             expect(res).to.be.a('array');
         }).catch(err => {

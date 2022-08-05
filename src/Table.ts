@@ -1,6 +1,6 @@
 import { DBWhereCause } from "types/MniorDbType";
 import type MinorDBInstance from "./MinorDB";
-import { isObject, getIDBError, logError, IDBKeyRange } from "./util";
+import { isObject, getIDBError, logError, IDBKeyRange, logTypeError } from "./util";
 import WhereCause from "./WhereCause";
 
 export type MinorTableInstance = InstanceType<typeof Table>;
@@ -84,11 +84,10 @@ export default class Table {
 
     /**
      * 插入数据，可以一条或多条
-     * @param {string} storeName:表名称
      * @param {object|array} content:需要写入的内容
      */
     insert(rows) {
-        if (!isObject(rows)) logError('content must be is an object or array ');
+        if (!isObject(rows)) logTypeError('content must be is an object or array ');
         const store = this.getStore("readwrite");
         //如果是数组
         if (Array.isArray(rows)) {
@@ -102,11 +101,10 @@ export default class Table {
 
     /**
      * 插入一条数据
-     * @param {string} storeName:表名称
-     * @param {object|array} content:需要写入的内容
+     * @param {object} content:需要写入的内容
      */
     insertOne(row, store?: IDBObjectStore) {
-        if (!isObject(row) || Array.isArray(row)) logError('content must be is an object');
+        if (!isObject(row) || Array.isArray(row)) logTypeError('content must be is an object');
         return new Promise((resolve, reject) => {
             if (!store) {
                 store = this.getStore("readwrite");
@@ -121,11 +119,10 @@ export default class Table {
 
     /**
      * 更新数据
-     * @param {string} storeName:表名称
-     * @param {object/array} content:需要写入的内容
+     * @param {UpdateData} doc 需要写入的内容
      */
     update(doc: UpdateData) {
-        if (!isObject(doc) || Array.isArray(doc)) logError('content must be is an object');
+        if (!isObject(doc) || Array.isArray(doc)) logTypeError('content must be is an object');
         return new Promise((resolve, reject) => {
             const store = this.getStore("readwrite");
             if (!doc[store.keyPath as string]) reject('content must have a primary key');
@@ -137,22 +134,15 @@ export default class Table {
 
     /**
      * 查询数据
-     * @param {Object} whereCause  需要查询的条件
-     * @param {Object} fields 需要查询的字段信息
+     * @param {DBWhereCause} whereCause  需要查询的条件
      */
     find(whereCause = {} as DBWhereCause) {
         const { field, count, keyRange, orderBy } = whereCause;
         return new Promise((resolve, reject) => {
             const store = this.getStore("readonly");
             const list = [] as any[];
-            let qRequest
-            if (!field || store.keyPath === field) {
-                //主键查询
-                qRequest = store.openCursor(keyRange, orderBy);
-            } else {
-                //索引
-                qRequest = store.index(field!).openCursor(keyRange, orderBy);
-            }
+            //主键查询 or 索引
+            let qRequest = !field || store.keyPath === field ? store.openCursor(keyRange, orderBy) : store.index(field!).openCursor(keyRange, orderBy)
             qRequest.onsuccess = (event: any) => {
                 const cursor = event.target.result as IDBCursorWithValue;
                 if (cursor) {
@@ -173,23 +163,16 @@ export default class Table {
 
     /**
      * 删除数据
-     * @param {string} storeName:表名称
-     * @param {object/array} content:需要写入的内容
+     * @param {DBWhereCause} whereCause  需要删除的条件
      */
     remove(whereCause = {} as DBWhereCause) {
-        if (!isObject(whereCause) || Array.isArray(whereCause)) logError('whereCause must be an object ');
+        if (!isObject(whereCause)) logTypeError('whereCause must be an object ');
         const { field, count, keyRange, orderBy } = whereCause;
         return new Promise((resolve, reject) => {
             const store = this.getStore("readwrite");
-            let dRequest
-            if (!field || store.keyPath === field) {
-                //主键查询
-                dRequest = store.openCursor(keyRange, orderBy);
-            } else {
-                //索引
-                dRequest = store.index(field!).openCursor(keyRange, orderBy);
-            }
             const list = [] as Array<any>;
+            let dRequest = !field || store.keyPath === field ?
+                store.openCursor(keyRange, orderBy) : store.index(field!).openCursor(keyRange, orderBy)
             dRequest.onsuccess = (event: any) => {
                 const cursor = event.target.result as IDBCursorWithValue;
                 if (cursor) {

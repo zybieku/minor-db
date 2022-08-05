@@ -31,32 +31,27 @@ export default class Table {
     getStore(rwType: any): IDBObjectStore;
     /**
      * 插入数据，可以一条或多条
-     * @param {string} storeName:表名称
      * @param {object|array} content:需要写入的内容
      */
     insert(rows: any): Promise<unknown>;
     /**
      * 插入一条数据
-     * @param {string} storeName:表名称
-     * @param {object|array} content:需要写入的内容
+     * @param {object} content:需要写入的内容
      */
     insertOne(row: any, store?: IDBObjectStore): Promise<unknown>;
     /**
      * 更新数据
-     * @param {string} storeName:表名称
-     * @param {object/array} content:需要写入的内容
+     * @param {UpdateData} doc 需要写入的内容
      */
     update(doc: UpdateData): Promise<unknown>;
     /**
      * 查询数据
-     * @param {Object} whereCause  需要查询的条件
-     * @param {Object} fields 需要查询的字段信息
+     * @param {DBWhereCause} whereCause  需要查询的条件
      */
     find(whereCause?: DBWhereCause): Promise<unknown>;
     /**
      * 删除数据
-     * @param {string} storeName:表名称
-     * @param {object/array} content:需要写入的内容
+     * @param {DBWhereCause} whereCause  需要删除的条件
      */
     remove(whereCause?: DBWhereCause): Promise<unknown>;
     /**

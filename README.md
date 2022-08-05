@@ -2,7 +2,7 @@
 
 #### 介绍
 
-**MinorDB** 是基于 IndexDB 封装的 web 前端数据库，轻量，Promise语法使用简单，支持 jQuery , Vue , React等
+**MinorDB** 是基于 IndexDB 封装的 web 前端数据库，轻量，Promise语法使用简单，支持 jQuery , Vue , React等,支持typescript
 
 #### 安装与配置
 
@@ -15,7 +15,8 @@ npm install minordb
 > 或者 browser 引入
 
 ```js
-<script src="../dist/minordb.min.js"></script>
+//把dist的minordb.min.js放入对应位置即可
+<script src="xx/minordb.min.js"></script>
 ```
 
 **配置**
@@ -88,7 +89,7 @@ minorDb.open(dbConfig.schemas).then((event) => {}).catch(err => {});
     
 
    //查询id>1的2条数据，升序排序
-   //where 条件只能是主键或索引
+   //where 条件只能是 主键或索引
    let lUsers =minorDb.user.where({ id: { '>': 1 }).limit(2).sort(asc).find()
 
    //查询username=2的数据
@@ -113,8 +114,27 @@ minorDb.open(dbConfig.schemas).then((event) => {}).catch(err => {});
    可以直接使用 remove 方法删除数据库记录。
 
 ```js
-   //根据主键的值删除多条
-   let result = minorDb.user.remove({id:{'>':1}})
+
+   //根据删除所有
+   let result = minorDb.user.remove()
    //复杂的删除
-   let result = minorDb.user.where({id:{'>':1}}).remove()
+   let result = minorDb.user.where({id:{'>':1,'<':3}}).remove()
+```
+
+#### 遗留问题
+   where条件只支持 一个主键 或者 一个索引key查询
+
+   对于查询`< > =`条件受到`indexDB`官方`IDBKeyRange` 限制
+   只支持以下的组合形式
+
+```
+   All keys ≥ x	IDBKeyRange.lowerBound(x)
+   All keys > x	IDBKeyRange.lowerBound(x, true)
+   All keys ≤ y	IDBKeyRange.upperBound(y)
+   All keys < y	IDBKeyRange.upperBound(y, true)
+   All keys ≥ x && ≤ y	IDBKeyRange.bound(x, y)
+   All keys > x &&< y	IDBKeyRange.bound(x, y, true, true)
+   All keys > x && ≤ y	IDBKeyRange.bound(x, y, true, false)
+   All keys ≥ x &&< y	IDBKeyRange.bound(x, y, false, true)
+   The key = z
 ```

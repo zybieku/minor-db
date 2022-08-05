@@ -1,6 +1,7 @@
 export declare const isObject: (obj: any) => obj is Record<any, any>;
 export declare const getIDBError: (e: any) => any;
 export declare const logError: (e: any) => never;
+export declare const logTypeError: (e: any) => never;
 export declare const indexedDB: IDBFactory;
 export declare const IDBKeyRange: {
     new (): IDBKeyRange;
