@@ -15,8 +15,8 @@ npm install minordb
 > 或者 browser 引入
 
 ```js
-//把dist的minordb.min.js放入对应位置即可
-<script src="xx/minordb.min.js"></script>
+//cdn
+<script src="https://cdn.jsdelivr.net/npm/minordb/dist/minordb.min.js"></script>
 ```
 
 **配置**
