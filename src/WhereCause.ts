@@ -20,7 +20,7 @@ const OrderByMap = {
 export default class WhereCause {
     private _table: MinorTableInstance
     private whereCause: DBWhereCause
-    public find: () => Promise<any>
+    public find: () => Promise<Array<unknown>>
     public remove: () => Promise<any>
     constructor(table: MinorTableInstance) {
         this._table = table;

@@ -6,6 +6,6 @@ type Schema<K extends Object> = {
     [key in keyof K]: MinorTableInstance
 }
 
-export type MinorDBType<T> = Schema<T> & InstanceType<typeof MinorDB>;
+export type MinorDBType<T extends Object> = Schema<T> & InstanceType<typeof MinorDB>;
 
 export default MinorDB;

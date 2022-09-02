@@ -4,7 +4,7 @@ declare type UpdateData = Array<Record<string, any>> | Record<string, any>;
 export default class WhereCause {
     private _table;
     private whereCause;
-    find: () => Promise<any>;
+    find: () => Promise<Array<unknown>>;
     remove: () => Promise<any>;
     constructor(table: MinorTableInstance);
     where(expr: any): this;

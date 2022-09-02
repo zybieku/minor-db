@@ -33,12 +33,12 @@ export default class Table {
      * 插入数据，可以一条或多条
      * @param {object|array} content:需要写入的内容
      */
-    insert(rows: any): Promise<unknown>;
+    insert(rows: any): Promise<number> | Promise<number[]>;
     /**
      * 插入一条数据
      * @param {object} content:需要写入的内容
      */
-    insertOne(row: any, store?: IDBObjectStore): Promise<unknown>;
+    insertOne(row: any, store?: IDBObjectStore): Promise<number>;
     /**
      * 更新数据
      * @param {UpdateData} doc 需要写入的内容
@@ -48,7 +48,7 @@ export default class Table {
      * 查询数据
      * @param {DBWhereCause} whereCause  需要查询的条件
      */
-    find(whereCause?: DBWhereCause): Promise<unknown>;
+    find(whereCause?: DBWhereCause): Promise<Array<unknown>>;
     /**
      * 删除数据
      * @param {DBWhereCause} whereCause  需要删除的条件

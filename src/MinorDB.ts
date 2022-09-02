@@ -68,12 +68,16 @@ export default class MinorDB {
                 this._idb = event.target.result as IDBDatabase;
                 this._addStores(schemas);
                 this.upgradeFunc && this.upgradeFunc(event);
+                console.log(event);
+
             };
 
             this.request.onsuccess = (event: any) => {
                 this._idb = event.target.result as IDBDatabase;
                 this._isOpen = true;
                 resolve(event);
+                console.log(22);
+
             };
             this.request.onerror = (event) => reject(getIDBError(event));
         });

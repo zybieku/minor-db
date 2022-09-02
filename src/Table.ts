@@ -103,7 +103,7 @@ export default class Table {
      * 插入一条数据
      * @param {object} content:需要写入的内容
      */
-    insertOne(row, store?: IDBObjectStore) {
+    insertOne(row, store?: IDBObjectStore): Promise<number> {
         if (!isObject(row) || Array.isArray(row)) logTypeError('content must be is an object');
         return new Promise((resolve, reject) => {
             if (!store) {
@@ -111,7 +111,7 @@ export default class Table {
             }
             const iRequest = store.add(row);
             iRequest.onsuccess = () => {
-                resolve(iRequest.result);
+                resolve(iRequest.result as number);
             };
             iRequest.onerror = (event) => reject(getIDBError(event));
         });
@@ -136,11 +136,11 @@ export default class Table {
      * 查询数据
      * @param {DBWhereCause} whereCause  需要查询的条件
      */
-    find(whereCause = {} as DBWhereCause) {
+    find(whereCause = {} as DBWhereCause): Promise<Array<unknown>> {
         const { field, count, keyRange, orderBy } = whereCause;
         return new Promise((resolve, reject) => {
             const store = this.getStore("readonly");
-            const list = [] as any[];
+            const list = [] as unknown[];
             //主键查询 or 索引
             let qRequest = !field || store.keyPath === field ? store.openCursor(keyRange, orderBy) : store.index(field!).openCursor(keyRange, orderBy)
             qRequest.onsuccess = (event: any) => {
@@ -149,7 +149,7 @@ export default class Table {
                     list.push(cursor.value);
                     if (count && list.length >= count) {
                         resolve(list);
-                        return;
+                        return list;
                     }
                     cursor.continue();
                 } else {
