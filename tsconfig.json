@@ -15,6 +15,7 @@
     "composite": true,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
+    "declaration": true,
     "declarationDir": "dist",
     "outDir": "dist",
     "baseUrl": "./",

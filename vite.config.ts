@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
+import dts from "vite-plugin-dts";
 
 export default defineConfig({
   resolve: {
@@ -21,4 +22,11 @@ export default defineConfig({
       fileName: (format) => `minordb.${format}.min.js`,
     },
   },
+   plugins:[
+    dts({
+      exclude: ["node_modules"],
+      outputDir: "lib",
+      insertTypesEntry: true,
+    }),
+  ]
 })
