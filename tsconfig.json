@@ -22,6 +22,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "types", "types/*"],
+  "include": ["src", "types", "types/*","vite/client"],
   "typeRoots": ["./node_modules/@types/", "./types/"]
 }
