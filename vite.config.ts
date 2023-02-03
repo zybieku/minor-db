@@ -18,7 +18,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'MinorDB',
       // the proper extensions will be added
-      fileName: (format) => `tz-ui.${format}.js`,
+      fileName: (format) => `minordb.${format}.min.js`,
     },
   },
 })
