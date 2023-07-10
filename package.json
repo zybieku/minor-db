@@ -1,6 +1,6 @@
 {
   "name": "minordb",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "this is web-client database based on indexdb",
   "type": "module",
   "files": [
